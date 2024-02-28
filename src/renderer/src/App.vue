@@ -1,26 +1,34 @@
-<script setup lang="ts">
-import Versions from './components/Versions.vue'
-
-const ipcHandle = () => window.electron.ipcRenderer.send('ping')
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <img alt="logo" class="logo" src="./assets/electron.svg" />
-  <div class="creator">Powered by electron-vite</div>
-  <div class="text">
-    Build an Electron app with
-    <span class="vue">Vue</span>
-    and
-    <span class="ts">TypeScript</span>
+  <div class="container">
+    <el-container class="content-container">
+      <el-aside width="200px">
+        <el-scrollbar height="100%" view-style="height:100%">
+          <el-menu :default-openeds="['1']" style="height: 100%">
+            <el-sub-menu index="1">
+              <template #title>
+                <el-icon><i-ep-menu /></el-icon>
+                工具
+              </template>
+              <el-menu-item index="1-1">国际化excel转换</el-menu-item>
+            </el-sub-menu>
+          </el-menu>
+        </el-scrollbar>
+      </el-aside>
+
+      <el-main><RouterView /></el-main>
+    </el-container>
   </div>
-  <p class="tip">Please try pressing <code>F12</code> to open the devTool</p>
-  <div class="actions">
-    <div class="action">
-      <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">Documentation</a>
-    </div>
-    <div class="action">
-      <a target="_blank" rel="noreferrer" @click="ipcHandle">Send IPC</a>
-    </div>
-  </div>
-  <Versions />
 </template>
+
+<style lang="less">
+.container {
+  width: 100%;
+  height: 100%;
+}
+
+.content-container {
+  height: 100%;
+}
+</style>
