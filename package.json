@@ -21,13 +21,20 @@
     "build:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/theme-one-dark": "^6.1.2",
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
     "@element-plus/icons-vue": "^2.3.1",
+    "@vueuse/core": "^10.9.0",
     "axios": "^1.6.7",
+    "codemirror": "^6.0.1",
     "electron-updater": "^6.1.7",
     "element-plus": "^2.5.6",
-    "vue-router": "4"
+    "lang-json": "link:@types/@codemirror/lang-json",
+    "vue-codemirror": "^6.1.1",
+    "vue-router": "4",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.2",
