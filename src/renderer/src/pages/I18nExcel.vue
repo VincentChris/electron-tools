@@ -15,8 +15,13 @@
       </template>
     </el-upload>
     <div class="flex">
-      <el-button @click="readClipboard">读取剪切板生成国际化json</el-button>
-      <el-input v-model="input" placeholder="请输入开始的表格" />
+      <el-button @click="handleGenerateI18nJson">读取剪切板生成国际化json</el-button>
+      <el-input
+        v-model="input"
+        style="width: 200px; margin: 8px 16px"
+        placeholder="请输入开始的表格"
+      />
+      <el-switch v-model="isEnUS" size="large" active-text="英文" inactive-text="中文" />
     </div>
     <div class="flex-1">
       <codemirror
@@ -40,38 +45,44 @@ import { oneDark } from '@codemirror/theme-one-dark';
 import * as XLSX from 'xlsx';
 
 const input = ref('A,B');
+const isEnUS = ref(true);
 const code = ref('');
+const clipboardValue = ref('');
 const extensions = [json(), oneDark];
 
-const readClipboard = () => {
-  navigator.clipboard
-    .readText()
-    .then((text) => {
-      const workbook = XLSX.read(text, { type: 'string' });
-      const sheet = workbook?.Sheets?.Sheet1;
-      if (!sheet) return;
-      const StartCeils = input.value.split(',') as [string, string];
-      const data = [[] as string[], [] as string[]];
+const readClipboard = async () => {
+  const clipboardData = await navigator.clipboard.readText();
+  clipboardValue.value = clipboardData || '';
+  return clipboardData;
+};
 
-      Object.keys(sheet).forEach((key) => {
-        if (key.startsWith(StartCeils[0])) {
-          data[0].push(sheet[key].v);
-        }
-        if (key.startsWith(StartCeils[1])) {
-          data[1].push(sheet[key].v);
-        }
-      });
-      console.log(sheet, StartCeils, Object.keys(sheet), data);
-      const result = data[0].reduce((pre, cur, index) => {
-        pre[cur] = data[1][index];
-        return pre;
-      }, {});
-      code.value = JSON.stringify(result, null, 2);
-      console.log('剪切板内容为:', result);
-    })
-    .catch((err) => {
-      console.error('无法读取剪切板内容:', err);
-    });
+const generateI18nJson = (text: string) => {
+  if (!clipboardValue.value) return;
+  const workbook = XLSX.read(text, { type: 'string' });
+  const sheet = workbook?.Sheets?.Sheet1;
+  if (!sheet) return;
+  const StartCeils = input.value.split(',') as [string, string];
+  const data = [[] as string[], [] as string[]];
+
+  Object.keys(sheet).forEach((key) => {
+    if (key.startsWith(StartCeils[0])) {
+      data[0].push(sheet[key].v);
+    }
+    if (key.startsWith(StartCeils[1])) {
+      data[1].push(sheet[key].v);
+    }
+  });
+  console.log(sheet, StartCeils, Object.keys(sheet), data);
+  const result = data[0].reduce((pre, cur, index) => {
+    pre[cur] = isEnUS.value ? data[1][index] : cur;
+    return pre;
+  }, {});
+  code.value = JSON.stringify(result, null, 2);
+};
+
+const handleGenerateI18nJson = async () => {
+  const clipboardData = await readClipboard();
+  generateI18nJson(clipboardData);
 };
 
 const beforeUpload = (file: UploadRawFile) => {
@@ -94,6 +105,7 @@ const beforeUpload = (file: UploadRawFile) => {
 }
 .flex {
   display: flex;
+  align-items: center;
 }
 
 .flex-1 {
