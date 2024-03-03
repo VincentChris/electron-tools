@@ -14,6 +14,6 @@ module.exports = {
     'vue/require-default-prop': 'off',
     'vue/multi-word-component-names': 'off',
     semi: ['error', 'always'],
-    'prettier/prettier': ['error', { semi: true }]
+    'prettier/prettier': ['error', { semi: true, endOfLine: 'auto' }]
   }
 };
