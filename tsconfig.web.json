@@ -5,6 +5,7 @@
     "src/renderer/**.d.ts",
     "src/renderer/src/**/*",
     "src/renderer/src/**/*.vue",
+    "src/renderer/src/**/*.ts",
     "src/preload/*.d.ts",
     "src/utils/*.ts",
     "src/common/**/*.ts",

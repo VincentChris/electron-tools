@@ -4,3 +4,21 @@
   width: 100vw;
   height: 100vh;
 }
+
+.flex {
+  display: flex;
+  align-items: center;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.flex-column {
+  flex-direction: column;
+  display: flex;
+}

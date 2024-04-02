@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import I18nExcel from '../pages/I18nExcel.vue';
 import { isAuthorized } from './guards';
 import I18nFile from '@renderer/pages/I18nFile.vue';
+import Lego from '@renderer/pages/lego/index.vue';
 
 export type AppRouteNames = 'i18n-excel';
 
@@ -21,6 +22,12 @@ export const routes: RouteRecordRaw[] = [
     name: 'i18n-file',
     path: '/i18n-file',
     component: I18nFile,
+    beforeEnter: () => isAuthorized()
+  },
+  {
+    name: 'lego',
+    path: '/lego',
+    component: Lego,
     beforeEnter: () => isAuthorized()
   }
 ];

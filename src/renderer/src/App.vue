@@ -38,6 +38,13 @@ const defaultActive = computed(() => route.path);
                     >国际化转换excel文件</el-menu-item
                   >
                 </el-sub-menu>
+                <el-sub-menu index="code">
+                  <template #title>
+                    <el-icon><i-ep-guide /></el-icon>
+                    代码生成
+                  </template>
+                  <el-menu-item index="/lego" @click="redirect">lego低代码</el-menu-item>
+                </el-sub-menu>
               </el-menu>
             </el-scrollbar>
           </el-aside>
