@@ -1,28 +1,36 @@
 <template>
   <div class="container">
     <div class="flex">
-      <el-select
-        v-model="projectValue"
-        placeholder="请选择项目"
-        size="large"
-        style="width: 240px"
-        filterable
-      >
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
-      <el-input
-        v-model="fileName"
-        style="width: 200px; margin: 8px 16px"
-        placeholder="请输入文件名称"
-      />
-      <el-button @click="handleGenerateI18nFile">读取剪切板生成国际化excel</el-button>
+      <el-form :inline="true">
+        <el-form-item label="项目名称">
+          <el-select
+            v-model="form.projectValue"
+            placeholder="请选择项目"
+            size="large"
+            style="width: 240px"
+            filterable
+          >
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="模块名称(用于国家化区分前缀)">
+          <el-input v-model="form.modulePrefix" style="width: 200px" placeholder="请输入文件名称" />
+        </el-form-item>
+        <el-form-item label="文件名称">
+          <el-input v-model="form.fileName" style="width: 200px" placeholder="请输入文件名称" />
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="handleGenerateI18nFile">生成excel并且选择存放目录</el-button>
+        </el-form-item>
+      </el-form>
     </div>
     <div class="flex-1">
+      <div class="tips">请将excel国际化内容复制到下方代码编辑器</div>
       <codemirror
         v-model="code"
         placeholder="Code goes here..."
@@ -45,30 +53,25 @@ import * as XLSX from 'xlsx';
 
 const options = [
   {
-    value: 'basesetting_web',
-    label: 'basesetting_web'
+    value: 'web_basesetting',
+    label: 'web_basesetting'
   },
   {
-    value: 'tms_web',
-    label: 'tms_web'
+    value: 'web_tms',
+    label: 'web_tms'
   },
   {
-    value: 'scs_web',
-    label: 'scs_web'
+    value: 'web_scs',
+    label: 'web_scs'
   }
 ];
-
-const projectValue = ref('basesetting_web');
-const fileName = ref('');
+const form = reactive({
+  projectValue: 'basesetting_web',
+  fileName: '',
+  modulePrefix: ''
+});
 const code = ref('');
-const clipboardValue = ref('');
 const extensions = [json(), oneDark];
-
-const readClipboard = async () => {
-  const clipboardData = await navigator.clipboard.readText();
-  clipboardValue.value = clipboardData || '';
-  return clipboardData;
-};
 
 const generateI18nJson = (text: string) => {
   if (!text) return;
@@ -84,50 +87,43 @@ const generateI18nJson = (text: string) => {
       data[1].push(sheet[key].v);
     }
   });
-  const modulePrefix = '用户授权';
   const result = data[0]
     .map((item, index) => {
       return [
         {
-          'languageCode*': `${modulePrefix}.${item}`,
-          'project*': projectValue.value,
+          'languageCode*': `${form.modulePrefix}.${item}`,
+          'project*': form.projectValue,
           'langType*': `zh_CN`,
           'languageValue*': `${item}`
         },
         {
-          'languageCode*': `${modulePrefix}.${item}`,
-          'project*': projectValue.value,
+          'languageCode*': `${form.modulePrefix}.${item}`,
+          'project*': form.projectValue,
           'langType*': `en_US`,
-          'languageValue*': `${modulePrefix}.${data[1][index]}`
+          'languageValue*': `${form.modulePrefix}.${data[1][index]}`
         }
       ];
     })
     .flat();
-  console.log('vincent', result);
+  return result;
 };
 
 const handleGenerateI18nFile = async () => {
-  const clipboardData = await readClipboard();
-  console.log('vincent vvv', clipboardData, fileName.value);
-  if (!clipboardData) {
-    ElMessage('请先复制国际化excel内容到剪切板');
+  if (!code.value) {
+    ElMessage('请先复制国际化excel内容到下方code编辑器');
     return;
   }
-  if (!fileName.value) {
+  if (!form.fileName) {
     ElMessage('请输入文件名称');
     return;
   }
   const directoryPath = localStorage.getItem(LOCALSTORAGEKEYS.I18NFILEDIR);
-  generateI18nJson(clipboardData);
-  window.ipcRenderer?.send('selectDirectory', directoryPath ?? undefined);
-};
-
-onMounted(() => {
-  window?.api?.selectDirectoryCallback?.((event, directoryPath) => {
-    localStorage.setItem(LOCALSTORAGEKEYS.I18NFILEDIR, directoryPath);
-    console.log('vincent ee', event, directoryPath);
+  const result = generateI18nJson(code.value);
+  window.ipcRenderer?.invoke('selectDirectory', directoryPath ?? undefined)?.then((res) => {
+    const filePath = `${res}/${form.fileName}.xlsx`;
+    window.api.saveXlsx(filePath, result!);
   });
-});
+};
 </script>
 
 <style scoped>
@@ -146,5 +142,9 @@ onMounted(() => {
 
 .flex-1 {
   flex: 1;
+}
+
+.tips {
+  margin-bottom: 12px;
 }
 </style>

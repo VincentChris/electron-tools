@@ -14,6 +14,7 @@ module.exports = {
     'vue/require-default-prop': 'off',
     'vue/multi-word-component-names': 'off',
     semi: ['error', 'always'],
+    '@typescript-eslint/no-explicit-any': 'off',
     'prettier/prettier': ['error', { semi: true, endOfLine: 'auto' }]
   }
 };

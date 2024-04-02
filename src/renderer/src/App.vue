@@ -43,7 +43,7 @@ const defaultActive = computed(() => route.path);
           </el-aside>
         </pane>
         <pane min-size="50">
-          <el-main><RouterView /></el-main>
+          <el-main class="h-full"><RouterView /></el-main>
         </pane>
       </splitpanes>
     </el-container>
@@ -54,6 +54,9 @@ const defaultActive = computed(() => route.path);
 .container {
   width: 100%;
   height: 100%;
+}
+.h-full {
+  height: 100vh;
 }
 
 .content-container {

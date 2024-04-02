@@ -72,15 +72,17 @@ app.on('window-all-closed', () => {
   }
 });
 
-ipcMain.on('selectDirectory', async (event, path) => {
+ipcMain.handle('selectDirectory', async (event, path) => {
   const result = await dialog.showOpenDialog(mainWindow!, {
     properties: ['openDirectory'],
     defaultPath: path
   });
   if (!result.canceled) {
     const directoryPath = result.filePaths[0];
-    event.sender.send('directorySelected', directoryPath);
+    return directoryPath;
+    // event.sender.send('directorySelected', directoryPath);
   }
+  return false;
 });
 
 // In this file you can include the rest of your app"s specific main process
