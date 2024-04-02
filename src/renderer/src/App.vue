@@ -1,6 +1,17 @@
 <script setup lang="ts">
+import { MenuItemRegistered } from 'element-plus/es/components/menu/src/types';
 import { Splitpanes, Pane } from 'splitpanes';
 import 'splitpanes/dist/splitpanes.css';
+
+const route = useRoute();
+const router = useRouter();
+
+function redirect(e: MenuItemRegistered) {
+  const { index } = e;
+  router.push(index);
+}
+const defaultExpanded = ['tools'];
+const defaultActive = computed(() => route.path);
 </script>
 
 <template>
@@ -10,13 +21,22 @@ import 'splitpanes/dist/splitpanes.css';
         <pane size="15" min-size="10" max-size="50">
           <el-aside style="width: 100%; height: 100%">
             <el-scrollbar height="100%" view-style="height:100%">
-              <el-menu :default-openeds="['1']" style="height: 100%; border-right: none">
-                <el-sub-menu index="1">
+              <el-menu
+                :default-openeds="defaultExpanded"
+                style="height: 100%; border-right: none"
+                :default-active="defaultActive"
+              >
+                <el-sub-menu index="tools">
                   <template #title>
                     <el-icon><i-ep-menu /></el-icon>
                     工具
                   </template>
-                  <el-menu-item index="1-1">国际化excel转换</el-menu-item>
+                  <el-menu-item index="/i18n-excel" @click="redirect"
+                    >国际化excel转换json</el-menu-item
+                  >
+                  <el-menu-item index="/i18n-file" @click="redirect"
+                    >国际化转换excel文件</el-menu-item
+                  >
                 </el-sub-menu>
               </el-menu>
             </el-scrollbar>
