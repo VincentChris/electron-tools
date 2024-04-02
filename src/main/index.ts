@@ -1,11 +1,12 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron';
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron';
 import { join } from 'path';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 import icon from '../../resources/icon.png?asset';
 
+let mainWindow: BrowserWindow | null = null;
 function createWindow(): void {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
@@ -16,9 +17,10 @@ function createWindow(): void {
       sandbox: false
     }
   });
+  mainWindow.webContents.openDevTools();
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show();
+    mainWindow?.show();
   });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -67,6 +69,17 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
+  }
+});
+
+ipcMain.on('selectDirectory', async (event, path) => {
+  const result = await dialog.showOpenDialog(mainWindow!, {
+    properties: ['openDirectory'],
+    defaultPath: path
+  });
+  if (!result.canceled) {
+    const directoryPath = result.filePaths[0];
+    event.sender.send('directorySelected', directoryPath);
   }
 });
 
