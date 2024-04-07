@@ -4,37 +4,80 @@
       <el-aside width="400px" class="left">
         <el-collapse v-model="activeItems" style="color: #000">
           <el-collapse-item
-            v-for="category in componentList"
-            :key="category.name"
+            v-for="category in compListRegisted"
+            :key="category.id"
             :title="category.name"
-            :name="category.name"
+            :name="category.id"
             style="--el-collapse-header-text-color: #000; --el-collapse-border-color: #ebeef5"
           >
             <div class="component-list">
-              <div v-for="item in category.children" :key="item.name" :title="item.name">
-                <div class="component-item flex-column">
-                  <div class="component-item-image">
-                    <el-image :src="item.image" fit="fill" style="width: 56px; height: 56px" />
-                  </div>
-                  <div class="component-item-title">
-                    {{ item.name }}
+              <VueDraggable
+                v-model="category.children"
+                :animation="150"
+                ghost-class="ghost"
+                :group="{ name: 'canvas', pull: 'clone', put: false }"
+                :sort="false"
+                @clone="onClone"
+              >
+                <div
+                  v-for="item in category.children"
+                  :key="item.id"
+                  :title="item.name"
+                  :data-id="item.id"
+                >
+                  <div class="component-item flex-column">
+                    <div class="component-item-image">
+                      <el-image :src="item.image" fit="fill" style="width: 56px; height: 56px" />
+                    </div>
+                    <div class="component-item-title">
+                      {{ item.name }}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </VueDraggable>
             </div>
           </el-collapse-item>
         </el-collapse>
       </el-aside>
-      <el-main>Main</el-main>
+      <el-main>
+        <div class="canvas">
+          <NestedComponent :model-value="compListInCanvas" />
+        </div>
+      </el-main>
       <el-aside width="400px" class="right">Aside</el-aside>
     </el-container>
   </div>
 </template>
 
 <script setup lang="ts">
+import { SortableEvent, VueDraggable } from 'vue-draggable-plus';
 import { componentList } from './componentRegister';
+import { recursiveFind } from '@renderer/utils/array';
+import NestedComponent from './NestedComponent.vue';
+
+interface IList {
+  id: string;
+  name: string;
+  image: string;
+  children: IList[];
+}
 const activeItems = ref([componentList[0].name]);
-console.log(componentList);
+const compListRegisted = ref(componentList);
+const compListInCanvas = ref<IList[]>([]);
+function onClone(evt: SortableEvent) {
+  console.log('vincent onClone', evt);
+  const { item } = evt;
+  const { id } = item.dataset;
+  const clonedItem = recursiveFind(id!, compListRegisted.value);
+  return {
+    ...clonedItem,
+    id: crypto.randomUUID()
+  };
+}
+watch(compListInCanvas.value, () => {
+  console.log('vvv', compListInCanvas.value);
+});
+console.log(compListInCanvas.value);
 </script>
 
 <style lang="less" scoped>
@@ -71,6 +114,11 @@ console.log(componentList);
 .component-item-title {
   display: flex;
   justify-content: center;
+}
+
+.canvas {
+  width: 100%;
+  height: 100%;
 }
 .right {
   border-left: 1px solid #000;
